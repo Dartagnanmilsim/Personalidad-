@@ -6,7 +6,7 @@ body{
 }
 
 .app{
-    max-width:700px;
+    max-width:800px;
     margin:auto;
     padding:20px;
 }
@@ -24,29 +24,33 @@ h1{
 .questions{
     display:flex;
     flex-direction:column;
-    gap:18px;
+    gap:16px;
 }
 
 .question-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
     background:#0b1220;
-    padding:18px;
-    border-radius:14px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.3);
+    padding:16px 18px;
+    border-radius:12px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.3);
 }
 
 .question-text{
-    margin-bottom:12px;
+    flex:1;
+    padding-right:15px;
+    line-height:1.4;
 }
 
 .options{
     display:flex;
-    justify-content:center;
-    gap:10px;
+    gap:8px;
 }
 
 .option-btn{
-    width:45px;
-    height:45px;
+    width:40px;
+    height:40px;
     border-radius:50%;
     border:2px solid #334155;
     background:#020617;
@@ -58,7 +62,7 @@ h1{
 
 .option-btn:hover{
     border-color:#38bdf8;
-    transform:scale(1.1);
+    transform:scale(1.08);
 }
 
 .option-btn.active{
@@ -79,11 +83,6 @@ h1{
     font-size:18px;
     font-weight:bold;
     cursor:pointer;
-    transition:0.3s;
-}
-
-.primary-btn:hover{
-    background:#0ea5e9;
 }
 
 .secondary-btn{

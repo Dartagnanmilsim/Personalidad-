@@ -103,7 +103,33 @@ document.getElementById("resultado").innerHTML = `
 <p><b>Evolución:</b> ${p.evolucion}</p>
 
 <hr>
+
 <p><b>Combinación:</b> ${principal}, ${segundo}, ${tercero}</p>
+
+<h3>¿Qué significa este resultado?</h3>
+
+<p>
+Tu arquetipo dominante representa la energía psicológica que más influye actualmente en tu forma de pensar,
+actuar y tomar decisiones. La combinación con los otros arquetipos indica cómo se complementa tu personalidad.
+</p>
+
+<p>
+Las personas con esta combinación suelen mostrar patrones específicos en liderazgo, relaciones personales
+y desarrollo profesional. Este resultado refleja tendencias actuales, no una definición permanente.
+</p>
+
+<ul>
+<li>Influye en tu forma de enfrentar retos y cambios</li>
+<li>Determina tu estilo de toma de decisiones</li>
+<li>Impacta tu liderazgo y comunicación</li>
+<li>Refleja motivaciones internas principales</li>
+<li>Muestra áreas de crecimiento potencial</li>
+</ul>
+
+<p>
+El desarrollo personal consiste en potenciar las fortalezas del arquetipo dominante y equilibrar los riesgos
+para lograr mayor estabilidad y efectividad en la vida.
+</p>
 `;
 
 promptTexto = generarPrompt(arquetipos, principal, segundo, tercero);

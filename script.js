@@ -1,162 +1,246 @@
-const questions = [
-"Me preocupo por el bienestar del equipo",
-"Escucho antes de decidir",
-"Mantengo armonía",
-"Resuelvo conflictos dialogando",
-"Genero confianza",
-"Apoyo personas",
-"Considero impacto emocional",
-"Valoro colaboración",
-
-"Decido con datos",
-"Planifico antes de actuar",
-"Analizo riesgos",
-"Cuido calidad",
-"Prefiero procesos claros",
-"Corrijo errores",
-"Trabajo con información compleja",
-"Busco eficiencia",
-
-"Decido rápido",
-"Me enfoco en metas",
-"Asumo riesgos",
-"Prefiero liderar",
-"Exijo rendimiento",
-"Me impaciento",
-"Priorizo resultados",
-"Actúo con determinación",
-
-"Motivo con entusiasmo",
-"Comunico ideas",
-"Inspiro cambios",
-"Disfruto presentar",
-"Genero ideas",
-"Influyo en otros",
-"Inicio proyectos",
-"Prefiero innovación"
+const preguntas = [
+"Las personas me buscan para decisiones importantes",
+"Asumo responsabilidad por otros",
+"Soy persistente hasta lograr objetivos",
+"Prefiero actuar rápido",
+"Analizo antes de actuar",
+"Me gusta aprender profundamente",
+"Expreso mis sentimientos fácilmente",
+"Disfruto experiencias sensoriales",
+"Necesito libertad para decidir",
+"Me aburre la rutina",
+"Me gusta crear proyectos",
+"Disfruto construir algo duradero",
+"Cuestiono normas absurdas",
+"Voy contra la corriente",
+"Uso humor en situaciones difíciles",
+"Me consideran divertido",
+"Cumplo compromisos",
+"Me importa contribuir a otros",
+"Personas me piden consejos",
+"Disfruto ayudar a crecer",
+"Necesito progreso",
+"La competencia me motiva",
+"Reflexiono sobre la vida",
+"Busco comprenderme"
 ];
 
-const assessment = document.getElementById("assessment");
+const perfiles = {
+Rey:{descripcion:"Líder natural orientado al orden.",fortalezas:"Autoridad, visión.",riesgos:"Control excesivo.",evolucion:"Delegar y confiar."},
+Guerrero:{descripcion:"Ejecutor disciplinado.",fortalezas:"Acción, disciplina.",riesgos:"Estrés.",evolucion:"Equilibrar descanso."},
+Mago:{descripcion:"Estratega analítico.",fortalezas:"Inteligencia.",riesgos:"Aislamiento.",evolucion:"Aplicar conocimiento."},
+Amante:{descripcion:"Conector emocional.",fortalezas:"Empatía.",riesgos:"Dependencia.",evolucion:"Límites sanos."},
+Explorador:{descripcion:"Buscador de libertad.",fortalezas:"Curiosidad.",riesgos:"Inestabilidad.",evolucion:"Compromiso."},
+Creador:{descripcion:"Innovador.",fortalezas:"Creatividad.",riesgos:"Perfeccionismo.",evolucion:"Ejecutar."},
+Rebelde:{descripcion:"Transformador.",fortalezas:"Valentía.",riesgos:"Conflicto.",evolucion:"Construir."},
+Bufón:{descripcion:"Carismático.",fortalezas:"Alegría.",riesgos:"Inmadurez.",evolucion:"Responsabilidad."},
+Ciudadano:{descripcion:"Responsable.",fortalezas:"Lealtad.",riesgos:"Conformismo.",evolucion:"Iniciativa."},
+Mentor:{descripcion:"Guía.",fortalezas:"Enseñanza.",riesgos:"Rigidez.",evolucion:"Humildad."},
+Héroe:{descripcion:"Competidor.",fortalezas:"Logro.",riesgos:"Ego.",evolucion:"Propósito."},
+Sabio:{descripcion:"Reflexivo.",fortalezas:"Perspectiva.",riesgos:"Pasividad.",evolucion:"Acción."}
+};
 
-questions.forEach((q,i)=>{
-const div=document.createElement("div");
-div.innerHTML=`
-<p>${i+1}. ${q}</p>
-<select id="q${i}">
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3" selected>3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
-`;
-assessment.appendChild(div);
+const contenedor = document.getElementById("questions");
+
+preguntas.forEach((p,i)=>{
+    contenedor.innerHTML += `
+    <div class="question">
+        <div class="question-text">${i+1}. ${p}</div>
+        <select id="q${i}">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+    </div>`;
 });
 
+let chart;
+let ultimoResultado;
+let promptTexto = "";
 
-function calculate(){
+function calcular(){
 
-let answers=[];
-
-for(let i=0;i<32;i++){
-answers.push(parseInt(document.getElementById(`q${i}`).value));
+let r = [];
+for(let i=0;i<24;i++){
+    r.push(parseInt(document.getElementById("q"+i).value));
 }
 
-let amable=sum(answers.slice(0,8));
-let analitico=sum(answers.slice(8,16));
-let emprendedor=sum(answers.slice(16,24));
-let expresivo=sum(answers.slice(24,32));
+const arquetipos = {
+Rey: r[0]+r[1],
+Guerrero: r[2]+r[3],
+Mago: r[4]+r[5],
+Amante: r[6]+r[7],
+Explorador: r[8]+r[9],
+Creador: r[10]+r[11],
+Rebelde: r[12]+r[13],
+Bufón: r[14]+r[15],
+Ciudadano: r[16]+r[17],
+Mentor: r[18]+r[19],
+Héroe: r[20]+r[21],
+Sabio: r[22]+r[23]
+};
 
-document.getElementById("results").classList.remove("hidden");
+const sorted = Object.entries(arquetipos).sort((a,b)=>b[1]-a[1]);
+const top3 = sorted.slice(0,3);
 
-document.getElementById("amableCard").innerHTML="Amable<br>"+amable;
-document.getElementById("analiticoCard").innerHTML="Analítico<br>"+analitico;
-document.getElementById("emprendedorCard").innerHTML="Emprendedor<br>"+emprendedor;
-document.getElementById("expresivoCard").innerHTML="Expresivo<br>"+expresivo;
+ultimoResultado = {arquetipos, top3};
 
-createRadar(amable,analitico,emprendedor,expresivo);
-createQuadrant(amable,analitico,emprendedor,expresivo);
-interpret(amable,analitico,emprendedor,expresivo);
-generatePrompt(amable,analitico,emprendedor,expresivo);
-}
+let principal = top3[0][0];
+let segundo = top3[1][0];
+let tercero = top3[2][0];
 
+let p = perfiles[principal];
 
-function sum(arr){
-return arr.reduce((a,b)=>a+b,0);
-}
+document.getElementById("resultado").style.display="block";
+document.getElementById("resultado").innerHTML = `
+<h2>Arquetipo Principal: ${principal}</h2>
 
+<p><b>Descripción:</b> ${p.descripcion}</p>
+<p><b>Fortalezas:</b> ${p.fortalezas}</p>
+<p><b>Riesgos:</b> ${p.riesgos}</p>
+<p><b>Evolución:</b> ${p.evolucion}</p>
 
-function createRadar(a,b,c,d){
-new Chart(document.getElementById("radarChart"),{
-type:'radar',
-data:{
-labels:['Amable','Analítico','Emprendedor','Expresivo'],
-datasets:[{data:[a,b,c,d]}]
-},
-options:{plugins:{legend:{display:false}}}
-});
-}
+<hr>
 
+<p><b>Combinación:</b> ${principal}, ${segundo}, ${tercero}</p>
 
-function createQuadrant(a,b,c,d){
+<h3>¿Qué significa este resultado?</h3>
 
-let x=d-b;
-let y=a-c;
+<p>
+Tu arquetipo dominante representa la energía psicológica que más influye actualmente en tu forma de pensar,
+actuar y tomar decisiones. La combinación con los otros arquetipos indica cómo se complementa tu personalidad.
+</p>
 
-new Chart(document.getElementById("quadrantChart"),{
-type:'scatter',
-data:{datasets:[{data:[{x:x,y:y}],pointRadius:8}]},
-options:{
-scales:{
-x:{title:{display:true,text:'Procesos ← → Innovación'}},
-y:{title:{display:true,text:'Personas ↑ ↓ Resultados'}}
-},
-plugins:{legend:{display:false}}
-}
-});
-}
+<p>
+Las personas con esta combinación suelen mostrar patrones específicos en liderazgo, relaciones personales
+y desarrollo profesional. Este resultado refleja tendencias actuales, no una definición permanente.
+</p>
 
+<ul>
+<li>Influye en tu forma de enfrentar retos y cambios</li>
+<li>Determina tu estilo de toma de decisiones</li>
+<li>Impacta tu liderazgo y comunicación</li>
+<li>Refleja motivaciones internas principales</li>
+<li>Muestra áreas de crecimiento potencial</li>
+</ul>
 
-function interpret(a,b,c,d){
-
-let max=Math.max(a,b,c,d);
-let perfil="";
-
-if(max===c) perfil="Líder Emprendedor";
-else if(max===b) perfil="Líder Analítico";
-else if(max===a) perfil="Líder Amable";
-else perfil="Líder Expresivo";
-
-document.getElementById("interpretation").innerHTML=
-`<h2>${perfil}</h2>
-<p>Tu estilo muestra una combinación de orientación a resultados, pensamiento estratégico y capacidad de influencia interpersonal.</p>`;
-}
-
-
-function generatePrompt(a,b,c,d){
-
-let text=`
-Actúa como coach ejecutivo experto en liderazgo.
-
-Mi perfil es:
-Amable: ${a}
-Analítico: ${b}
-Emprendedor: ${c}
-Expresivo: ${d}
-
-1. Describe mis fortalezas.
-2. Identifica riesgos.
-3. Propón plan de desarrollo.
-4. Cómo mejorar impacto en equipos.
+<p>
+El desarrollo personal consiste en potenciar las fortalezas del arquetipo dominante y equilibrar los riesgos
+para lograr mayor estabilidad y efectividad en la vida.
+</p>
 `;
 
-document.getElementById("promptOutput").value=text;
+promptTexto = generarPrompt(arquetipos, principal, segundo, tercero);
+
+document.getElementById("copyPromptBtn").style.display="block";
+document.getElementById("pdfBtn").style.display="block";
+
+crearGrafico(arquetipos);
+
 }
 
+function generarPrompt(arquetipos, principal, segundo, tercero){
 
-function downloadPDF(){
+let puntajesTexto = Object.entries(arquetipos)
+.map(a => `${a[0]}: ${a[1]}`)
+.join("\n");
 
-const element=document.getElementById("report");
+return `Actúa como psicólogo especializado en arquetipos de personalidad masculina.
 
-html2pdf().from(element).save("Reporte_Liderazgo.pdf");
+Mis resultados del test son:
+
+Arquetipo principal: ${principal}
+Segundo arquetipo: ${segundo}
+Tercer arquetipo: ${tercero}
+
+Puntajes:
+${puntajesTexto}
+
+Analiza:
+
+1. Perfil psicológico profundo
+2. Fortalezas
+3. Riesgos o sombras
+4. Liderazgo
+5. Relaciones
+6. Evolución
+7. Recomendaciones prácticas
+
+Sé específico y detallado.`;
+}
+
+function copiarPrompt(){
+navigator.clipboard.writeText(promptTexto);
+alert("Prompt copiado. Pégalo en ChatGPT.");
+}
+
+function crearGrafico(data){
+
+const ctx = document.getElementById('grafico');
+
+if(chart) chart.destroy();
+
+chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+        labels: Object.keys(data),
+        datasets: [{
+            label: 'Nivel de desarrollo',
+            data: Object.values(data),
+            backgroundColor: 'rgba(56,189,248,0.2)',
+            borderColor: '#38bdf8',
+            pointBackgroundColor: '#38bdf8',
+            borderWidth:2
+        }]
+    },
+    options:{
+        plugins:{
+            legend:{labels:{color:"black"}}
+        },
+        scales:{
+            r:{
+                pointLabels:{color:"black"},
+                ticks:{color:"black"}
+            }
+        }
+    }
+});
+
+}
+
+async function descargarPDF(){
+
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+
+let principal = ultimoResultado.top3[0][0];
+let p = perfiles[principal];
+
+doc.setFontSize(18);
+doc.text("Informe de Personalidad - Arquetipos", 10, 15);
+
+doc.setFontSize(12);
+doc.text(`Arquetipo principal: ${principal}`,10,30);
+doc.text(`Descripción: ${p.descripcion}`,10,40);
+doc.text(`Fortalezas: ${p.fortalezas}`,10,50);
+doc.text(`Riesgos: ${p.riesgos}`,10,60);
+doc.text(`Evolución: ${p.evolucion}`,10,70);
+
+const canvas = document.getElementById("grafico");
+const imgData = canvas.toDataURL("image/png",1.0);
+
+doc.addImage(imgData,"PNG",10,90,180,80);
+
+doc.addPage();
+
+doc.setFontSize(14);
+doc.text("Análisis avanzado con Inteligencia Artificial",10,15);
+
+doc.setFontSize(9);
+doc.text(doc.splitTextToSize(promptTexto,180),10,30);
+
+doc.save("informe_arquetipos.pdf");
+
 }

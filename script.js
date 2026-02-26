@@ -40,34 +40,26 @@ Héroe:{descripcion:"Competidor.",fortalezas:"Logro.",riesgos:"Ego.",evolucion:"
 Sabio:{descripcion:"Reflexivo.",fortalezas:"Perspectiva.",riesgos:"Pasividad.",evolucion:"Acción."}
 };
 
-const respuestas = new Array(24).fill(3);
 const contenedor = document.getElementById("questions");
 
 preguntas.forEach((p,i)=>{
 
-let opcionesHTML = "";
-
-for(let n=1;n<=5;n++){
-    opcionesHTML += `
-    <button class="option-btn ${n===3?'active':''}" 
-        onclick="seleccionar(${i},${n},this)">
-        ${n}
-    </button>`;
-}
-
 contenedor.innerHTML += `
-<div class="question-card">
-    <div class="question-text">${i+1}. ${p}</div>
-    <div class="options">${opcionesHTML}</div>
-</div>`;
-});
+<div class="question-row">
+    <div class="question-text">
+        ${i+1}. ${p}
+    </div>
 
-function seleccionar(pregunta, valor, boton){
-respuestas[pregunta] = valor;
-let botones = boton.parentElement.querySelectorAll(".option-btn");
-botones.forEach(b=>b.classList.remove("active"));
-boton.classList.add("active");
-}
+    <select id="q${i}">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+</div>
+`;
+});
 
 let chart;
 let ultimoResultado;
@@ -75,7 +67,10 @@ let promptTexto="";
 
 function calcular(){
 
-let r = respuestas;
+let r = [];
+for(let i=0;i<24;i++){
+    r.push(parseInt(document.getElementById("q"+i).value));
+}
 
 const arquetipos = {
 Rey: r[0]+r[1],

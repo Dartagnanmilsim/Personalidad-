@@ -63,15 +63,10 @@ contenedor.innerHTML += `
 });
 
 function seleccionar(pregunta, valor, boton){
-
 respuestas[pregunta] = valor;
-
 let botones = boton.parentElement.querySelectorAll(".option-btn");
-
 botones.forEach(b=>b.classList.remove("active"));
-
 boton.classList.add("active");
-
 }
 
 let chart;

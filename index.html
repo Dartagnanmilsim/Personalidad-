@@ -3,73 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Leadership Styles Analyzer</title>
+<title>Test de Arquetipos</title>
 
 <link rel="stylesheet" href="style.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </head>
 <body>
 
-<div class="app">
+<div class="container">
 
-<header>
-    <h1>Leadership Styles Analyzer</h1>
-    <p>Amable · Analítico · Emprendedor · Expresivo</p>
-</header>
+<h1>Test de Arquetipos</h1>
+<p class="subtitle">Responde del 1 al 5 (1 = Nunca | 5 = Siempre)</p>
 
-<section class="card" id="assessment"></section>
+<div id="questions"></div>
 
-<div class="center">
-    <button class="primary" onclick="calculate()">Generar Resultado</button>
-</div>
+<button onclick="calcular()">Ver Resultado</button>
 
-<section id="results" class="hidden">
+<div id="resultado" class="result"></div>
 
-<div id="report">
+<canvas id="grafico"></canvas>
 
-<div class="grid">
+<button id="copyPromptBtn" onclick="copiarPrompt()" style="display:none;">
+Copiar Prompt para ChatGPT
+</button>
 
-<div class="card score" id="amableCard"></div>
-<div class="card score" id="analiticoCard"></div>
-<div class="card score" id="emprendedorCard"></div>
-<div class="card score" id="expresivoCard"></div>
-
-</div>
-
-<div class="grid">
-
-<div class="card">
-<canvas id="radarChart"></canvas>
-</div>
-
-<div class="card">
-<canvas id="quadrantChart"></canvas>
-</div>
-
-</div>
-
-<div class="card" id="interpretation"></div>
-
-<div class="card">
-<h3>Prompt Personalizado</h3>
-<textarea id="promptOutput"></textarea>
-</div>
-
-</div>
-
-<div class="center">
-<button class="secondary" onclick="downloadPDF()">Descargar PDF</button>
-</div>
-
-</section>
+<button id="pdfBtn" onclick="descargarPDF()" style="display:none;">
+Descargar Informe PDF
+</button>
 
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>

@@ -57,7 +57,8 @@ preguntas.forEach((p,i)=>{
 });
 
 let chart;
-let ultimoResultado = null;
+let ultimoResultado;
+let promptTexto = "";
 
 function calcular(){
 
@@ -87,6 +88,9 @@ const top3 = sorted.slice(0,3);
 ultimoResultado = {arquetipos, top3};
 
 let principal = top3[0][0];
+let segundo = top3[1][0];
+let tercero = top3[2][0];
+
 let p = perfiles[principal];
 
 document.getElementById("resultado").style.display="block";
@@ -99,14 +103,51 @@ document.getElementById("resultado").innerHTML = `
 <p><b>Evolución:</b> ${p.evolucion}</p>
 
 <hr>
-
-<p><b>Combinación:</b> ${top3[0][0]}, ${top3[1][0]}, ${top3[2][0]}</p>
+<p><b>Combinación:</b> ${principal}, ${segundo}, ${tercero}</p>
 `;
 
+promptTexto = generarPrompt(arquetipos, principal, segundo, tercero);
+
+document.getElementById("copyPromptBtn").style.display="block";
 document.getElementById("pdfBtn").style.display="block";
 
 crearGrafico(arquetipos);
 
+}
+
+function generarPrompt(arquetipos, principal, segundo, tercero){
+
+let puntajesTexto = Object.entries(arquetipos)
+.map(a => `${a[0]}: ${a[1]}`)
+.join("\n");
+
+return `Actúa como psicólogo especializado en arquetipos de personalidad masculina.
+
+Mis resultados del test son:
+
+Arquetipo principal: ${principal}
+Segundo arquetipo: ${segundo}
+Tercer arquetipo: ${tercero}
+
+Puntajes:
+${puntajesTexto}
+
+Analiza:
+
+1. Perfil psicológico profundo
+2. Fortalezas
+3. Riesgos o sombras
+4. Liderazgo
+5. Relaciones
+6. Evolución
+7. Recomendaciones prácticas
+
+Sé específico y detallado.`;
+}
+
+function copiarPrompt(){
+navigator.clipboard.writeText(promptTexto);
+alert("Prompt copiado. Pégalo en ChatGPT.");
 }
 
 function crearGrafico(data){
@@ -130,16 +171,12 @@ chart = new Chart(ctx, {
     },
     options:{
         plugins:{
-            legend:{
-                labels:{color:"white",font:{size:14}}
-            }
+            legend:{labels:{color:"black"}}
         },
         scales:{
             r:{
-                angleLines:{color:"#334155"},
-                grid:{color:"#334155"},
-                pointLabels:{color:"white",font:{size:12}},
-                ticks:{color:"white",backdropColor:"transparent"}
+                pointLabels:{color:"black"},
+                ticks:{color:"black"}
             }
         }
     }
@@ -155,8 +192,8 @@ const doc = new jsPDF();
 let principal = ultimoResultado.top3[0][0];
 let p = perfiles[principal];
 
-doc.setFontSize(16);
-doc.text("Resultado Test de Arquetipos", 10, 15);
+doc.setFontSize(18);
+doc.text("Informe de Personalidad - Arquetipos", 10, 15);
 
 doc.setFontSize(12);
 doc.text(`Arquetipo principal: ${principal}`,10,30);
@@ -165,13 +202,19 @@ doc.text(`Fortalezas: ${p.fortalezas}`,10,50);
 doc.text(`Riesgos: ${p.riesgos}`,10,60);
 doc.text(`Evolución: ${p.evolucion}`,10,70);
 
-doc.text(`Combinación: ${ultimoResultado.top3.map(t=>t[0]).join(", ")}`,10,90);
-
 const canvas = document.getElementById("grafico");
 const imgData = canvas.toDataURL("image/png",1.0);
 
-doc.addImage(imgData,"PNG",10,100,180,80);
+doc.addImage(imgData,"PNG",10,90,180,80);
 
-doc.save("resultado_arquetipos.pdf");
+doc.addPage();
+
+doc.setFontSize(14);
+doc.text("Análisis avanzado con Inteligencia Artificial",10,15);
+
+doc.setFontSize(9);
+doc.text(doc.splitTextToSize(promptTexto,180),10,30);
+
+doc.save("informe_arquetipos.pdf");
 
 }

@@ -13,24 +13,26 @@
 </head>
 <body>
 
-<div class="container">
+<div class="app">
 
+<header>
 <h1>Test de Arquetipos</h1>
-<p class="subtitle">Responde del 1 al 5 (1 = Nunca | 5 = Siempre)</p>
+<p>Responde según tu comportamiento habitual</p>
+</header>
 
-<div id="questions"></div>
+<div id="questions" class="questions"></div>
 
-<button onclick="calcular()">Ver Resultado</button>
+<button class="primary-btn" onclick="calcular()">Ver Resultado</button>
 
 <div id="resultado" class="result"></div>
 
 <canvas id="grafico"></canvas>
 
-<button id="copyPromptBtn" onclick="copiarPrompt()" style="display:none;">
+<button id="copyPromptBtn" class="secondary-btn" onclick="copiarPrompt()" style="display:none;">
 Copiar Prompt para ChatGPT
 </button>
 
-<button id="pdfBtn" onclick="descargarPDF()" style="display:none;">
+<button id="pdfBtn" class="secondary-btn" onclick="descargarPDF()" style="display:none;">
 Descargar Informe PDF
 </button>
 

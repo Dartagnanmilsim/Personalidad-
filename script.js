@@ -26,91 +26,18 @@ const preguntas = [
 ];
 
 const perfiles = {
-
-Rey:{
-descripcion:"Líder natural orientado al orden y la estructura.",
-fortalezas:"Autoridad, visión, estabilidad y capacidad de organización.",
-riesgos:"Control excesivo, rigidez o autoritarismo.",
-evolucion:"Aprender a delegar, confiar en otros y desarrollar empatía."
-},
-
-Guerrero:{
-descripcion:"Ejecutor disciplinado que logra objetivos con determinación.",
-fortalezas:"Disciplina, acción, enfoque y resiliencia.",
-riesgos:"Estrés, agresividad o exceso de exigencia.",
-evolucion:"Equilibrar acción con descanso y conexión emocional."
-},
-
-Mago:{
-descripcion:"Estratega analítico que comprende sistemas y procesos.",
-fortalezas:"Inteligencia, aprendizaje, observación y pensamiento estratégico.",
-riesgos:"Aislamiento o manipulación.",
-evolucion:"Aplicar el conocimiento en acciones prácticas."
-},
-
-Amante:{
-descripcion:"Conector emocional sensible y apasionado.",
-fortalezas:"Empatía, disfrute, conexión humana y creatividad emocional.",
-riesgos:"Dependencia emocional o impulsividad.",
-evolucion:"Desarrollar límites sanos y estabilidad interna."
-},
-
-Explorador:{
-descripcion:"Buscador de libertad, independencia y nuevas experiencias.",
-fortalezas:"Curiosidad, adaptabilidad, valentía.",
-riesgos:"Inestabilidad o dificultad para comprometerse.",
-evolucion:"Construir proyectos con continuidad."
-},
-
-Creador:{
-descripcion:"Innovador que construye ideas, proyectos o soluciones.",
-fortalezas:"Creatividad, visión, capacidad de generar valor.",
-riesgos:"Perfeccionismo o frustración.",
-evolucion:"Ejecutar sin esperar perfección."
-},
-
-Rebelde:{
-descripcion:"Transformador que desafía normas y genera cambio.",
-fortalezas:"Valentía, pensamiento independiente.",
-riesgos:"Destrucción sin propósito o conflicto constante.",
-evolucion:"Canalizar la rebeldía en construcción positiva."
-},
-
-Bufón:{
-descripcion:"Persona carismática que usa humor y ligereza.",
-fortalezas:"Alegría, creatividad social, adaptación.",
-riesgos:"Inmadurez o evasión de responsabilidades.",
-evolucion:"Integrar diversión con compromiso."
-},
-
-Ciudadano:{
-descripcion:"Responsable y comprometido con su entorno.",
-fortalezas:"Lealtad, cooperación, confiabilidad.",
-riesgos:"Conformismo o dependencia social.",
-evolucion:"Desarrollar iniciativa propia."
-},
-
-Mentor:{
-descripcion:"Guía que ayuda a otros a crecer mediante experiencia.",
-fortalezas:"Sabiduría práctica, enseñanza, liderazgo humano.",
-riesgos:"Superioridad moral o rigidez.",
-evolucion:"Mantener humildad y aprendizaje continuo."
-},
-
-Héroe:{
-descripcion:"Competidor que busca superación personal constante.",
-fortalezas:"Valentía, logro, ambición.",
-riesgos:"Ego o necesidad de aprobación.",
-evolucion:"Conectar el logro con propósito profundo."
-},
-
-Sabio:{
-descripcion:"Persona reflexiva que busca comprensión y sentido.",
-fortalezas:"Perspectiva, serenidad, profundidad.",
-riesgos:"Pasividad o desconexión de la acción.",
-evolucion:"Transformar conocimiento en decisiones."
-}
-
+Rey:{descripcion:"Líder natural orientado al orden.",fortalezas:"Autoridad, visión.",riesgos:"Control excesivo.",evolucion:"Delegar y confiar."},
+Guerrero:{descripcion:"Ejecutor disciplinado.",fortalezas:"Acción, disciplina.",riesgos:"Estrés.",evolucion:"Equilibrar descanso."},
+Mago:{descripcion:"Estratega analítico.",fortalezas:"Inteligencia.",riesgos:"Aislamiento.",evolucion:"Aplicar conocimiento."},
+Amante:{descripcion:"Conector emocional.",fortalezas:"Empatía.",riesgos:"Dependencia.",evolucion:"Límites sanos."},
+Explorador:{descripcion:"Buscador de libertad.",fortalezas:"Curiosidad.",riesgos:"Inestabilidad.",evolucion:"Compromiso."},
+Creador:{descripcion:"Innovador.",fortalezas:"Creatividad.",riesgos:"Perfeccionismo.",evolucion:"Ejecutar."},
+Rebelde:{descripcion:"Transformador.",fortalezas:"Valentía.",riesgos:"Conflicto.",evolucion:"Construir."},
+Bufón:{descripcion:"Carismático.",fortalezas:"Alegría.",riesgos:"Inmadurez.",evolucion:"Responsabilidad."},
+Ciudadano:{descripcion:"Responsable.",fortalezas:"Lealtad.",riesgos:"Conformismo.",evolucion:"Iniciativa."},
+Mentor:{descripcion:"Guía.",fortalezas:"Enseñanza.",riesgos:"Rigidez.",evolucion:"Humildad."},
+Héroe:{descripcion:"Competidor.",fortalezas:"Logro.",riesgos:"Ego.",evolucion:"Propósito."},
+Sabio:{descripcion:"Reflexivo.",fortalezas:"Perspectiva.",riesgos:"Pasividad.",evolucion:"Acción."}
 };
 
 const contenedor = document.getElementById("questions");
@@ -118,18 +45,19 @@ const contenedor = document.getElementById("questions");
 preguntas.forEach((p,i)=>{
     contenedor.innerHTML += `
     <div class="question">
-    ${i+1}. ${p}
-    <select id="q${i}">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-    </select>
+        <div class="question-text">${i+1}. ${p}</div>
+        <select id="q${i}">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
     </div>`;
 });
 
 let chart;
+let ultimoResultado = null;
 
 function calcular(){
 
@@ -154,39 +82,25 @@ Sabio: r[22]+r[23]
 };
 
 const sorted = Object.entries(arquetipos).sort((a,b)=>b[1]-a[1]);
-
 const top3 = sorted.slice(0,3);
 
-localStorage.setItem("resultadoArquetipos", JSON.stringify(sorted));
+ultimoResultado = {arquetipos, top3};
 
 let principal = top3[0][0];
-let segundo = top3[1][0];
-let tercero = top3[2][0];
-
 let p = perfiles[principal];
 
 document.getElementById("resultado").style.display="block";
-
 document.getElementById("resultado").innerHTML = `
-<h2>Tu Arquetipo Principal: ${principal}</h2>
+<h2>Arquetipo Principal: ${principal}</h2>
 
 <p><b>Descripción:</b> ${p.descripcion}</p>
 <p><b>Fortalezas:</b> ${p.fortalezas}</p>
 <p><b>Riesgos:</b> ${p.riesgos}</p>
-<p><b>Evolución recomendada:</b> ${p.evolucion}</p>
+<p><b>Evolución:</b> ${p.evolucion}</p>
 
 <hr>
 
-<h3>Combinación de Personalidad</h3>
-<p>
-Tu perfil combina <b>${principal}</b>, <b>${segundo}</b> y <b>${tercero}</b>.
-Esto indica que tu comportamiento está influenciado por múltiples energías psicológicas.
-</p>
-
-<p>
-Las personas con esta combinación suelen mostrar patrones específicos en liderazgo,
-relaciones y toma de decisiones.
-</p>
+<p><b>Combinación:</b> ${top3[0][0]}, ${top3[1][0]}, ${top3[2][0]}</p>
 `;
 
 document.getElementById("pdfBtn").style.display="block";
@@ -199,18 +113,35 @@ function crearGrafico(data){
 
 const ctx = document.getElementById('grafico');
 
-if(chart){
-    chart.destroy();
-}
+if(chart) chart.destroy();
 
 chart = new Chart(ctx, {
     type: 'radar',
     data: {
         labels: Object.keys(data),
         datasets: [{
-            label: 'Resultado',
-            data: Object.values(data)
+            label: 'Nivel de desarrollo',
+            data: Object.values(data),
+            backgroundColor: 'rgba(56,189,248,0.2)',
+            borderColor: '#38bdf8',
+            pointBackgroundColor: '#38bdf8',
+            borderWidth:2
         }]
+    },
+    options:{
+        plugins:{
+            legend:{
+                labels:{color:"white",font:{size:14}}
+            }
+        },
+        scales:{
+            r:{
+                angleLines:{color:"#334155"},
+                grid:{color:"#334155"},
+                pointLabels:{color:"white",font:{size:12}},
+                ticks:{color:"white",backdropColor:"transparent"}
+            }
+        }
     }
 });
 
@@ -219,16 +150,27 @@ chart = new Chart(ctx, {
 async function descargarPDF(){
 
 const { jsPDF } = window.jspdf;
-
-let resultados = JSON.parse(localStorage.getItem("resultadoArquetipos"));
-
 const doc = new jsPDF();
 
-doc.text("Resultado Test de Arquetipos", 10, 10);
+let principal = ultimoResultado.top3[0][0];
+let p = perfiles[principal];
 
-resultados.slice(0,3).forEach((r,i)=>{
-    doc.text(`${i+1}. ${r[0]}: ${r[1]}`, 10, 20 + (i*10));
-});
+doc.setFontSize(16);
+doc.text("Resultado Test de Arquetipos", 10, 15);
+
+doc.setFontSize(12);
+doc.text(`Arquetipo principal: ${principal}`,10,30);
+doc.text(`Descripción: ${p.descripcion}`,10,40);
+doc.text(`Fortalezas: ${p.fortalezas}`,10,50);
+doc.text(`Riesgos: ${p.riesgos}`,10,60);
+doc.text(`Evolución: ${p.evolucion}`,10,70);
+
+doc.text(`Combinación: ${ultimoResultado.top3.map(t=>t[0]).join(", ")}`,10,90);
+
+const canvas = document.getElementById("grafico");
+const imgData = canvas.toDataURL("image/png",1.0);
+
+doc.addImage(imgData,"PNG",10,100,180,80);
 
 doc.save("resultado_arquetipos.pdf");
 

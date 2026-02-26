@@ -40,32 +40,47 @@ Héroe:{descripcion:"Competidor.",fortalezas:"Logro.",riesgos:"Ego.",evolucion:"
 Sabio:{descripcion:"Reflexivo.",fortalezas:"Perspectiva.",riesgos:"Pasividad.",evolucion:"Acción."}
 };
 
+const respuestas = new Array(24).fill(3);
 const contenedor = document.getElementById("questions");
 
 preguntas.forEach((p,i)=>{
-    contenedor.innerHTML += `
-    <div class="question">
-        <div class="question-text">${i+1}. ${p}</div>
-        <select id="q${i}">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
-    </div>`;
+
+let opcionesHTML = "";
+
+for(let n=1;n<=5;n++){
+    opcionesHTML += `
+    <button class="option-btn ${n===3?'active':''}" 
+        onclick="seleccionar(${i},${n},this)">
+        ${n}
+    </button>`;
+}
+
+contenedor.innerHTML += `
+<div class="question-card">
+    <div class="question-text">${i+1}. ${p}</div>
+    <div class="options">${opcionesHTML}</div>
+</div>`;
 });
+
+function seleccionar(pregunta, valor, boton){
+
+respuestas[pregunta] = valor;
+
+let botones = boton.parentElement.querySelectorAll(".option-btn");
+
+botones.forEach(b=>b.classList.remove("active"));
+
+boton.classList.add("active");
+
+}
 
 let chart;
 let ultimoResultado;
-let promptTexto = "";
+let promptTexto="";
 
 function calcular(){
 
-let r = [];
-for(let i=0;i<24;i++){
-    r.push(parseInt(document.getElementById("q"+i).value));
-}
+let r = respuestas;
 
 const arquetipos = {
 Rey: r[0]+r[1],
@@ -110,26 +125,16 @@ document.getElementById("resultado").innerHTML = `
 
 <p>
 Tu arquetipo dominante representa la energía psicológica que más influye actualmente en tu forma de pensar,
-actuar y tomar decisiones. La combinación con los otros arquetipos indica cómo se complementa tu personalidad.
-</p>
-
-<p>
-Las personas con esta combinación suelen mostrar patrones específicos en liderazgo, relaciones personales
-y desarrollo profesional. Este resultado refleja tendencias actuales, no una definición permanente.
+actuar y tomar decisiones.
 </p>
 
 <ul>
-<li>Influye en tu forma de enfrentar retos y cambios</li>
-<li>Determina tu estilo de toma de decisiones</li>
+<li>Influye en tu forma de enfrentar retos</li>
+<li>Determina tu estilo de decisiones</li>
 <li>Impacta tu liderazgo y comunicación</li>
-<li>Refleja motivaciones internas principales</li>
-<li>Muestra áreas de crecimiento potencial</li>
+<li>Refleja motivaciones internas</li>
+<li>Muestra áreas de crecimiento</li>
 </ul>
-
-<p>
-El desarrollo personal consiste en potenciar las fortalezas del arquetipo dominante y equilibrar los riesgos
-para lograr mayor estabilidad y efectividad en la vida.
-</p>
 `;
 
 promptTexto = generarPrompt(arquetipos, principal, segundo, tercero);
@@ -149,31 +154,19 @@ let puntajesTexto = Object.entries(arquetipos)
 
 return `Actúa como psicólogo especializado en arquetipos de personalidad masculina.
 
-Mis resultados del test son:
-
 Arquetipo principal: ${principal}
-Segundo arquetipo: ${segundo}
-Tercer arquetipo: ${tercero}
+Segundo: ${segundo}
+Tercero: ${tercero}
 
 Puntajes:
 ${puntajesTexto}
 
-Analiza:
-
-1. Perfil psicológico profundo
-2. Fortalezas
-3. Riesgos o sombras
-4. Liderazgo
-5. Relaciones
-6. Evolución
-7. Recomendaciones prácticas
-
-Sé específico y detallado.`;
+Analiza perfil profundo, fortalezas, riesgos, liderazgo, relaciones y evolución.`;
 }
 
 function copiarPrompt(){
 navigator.clipboard.writeText(promptTexto);
-alert("Prompt copiado. Pégalo en ChatGPT.");
+alert("Prompt copiado");
 }
 
 function crearGrafico(data){
@@ -191,20 +184,12 @@ chart = new Chart(ctx, {
             data: Object.values(data),
             backgroundColor: 'rgba(56,189,248,0.2)',
             borderColor: '#38bdf8',
-            pointBackgroundColor: '#38bdf8',
-            borderWidth:2
+            pointBackgroundColor: '#38bdf8'
         }]
     },
     options:{
-        plugins:{
-            legend:{labels:{color:"black"}}
-        },
-        scales:{
-            r:{
-                pointLabels:{color:"black"},
-                ticks:{color:"black"}
-            }
-        }
+        plugins:{legend:{labels:{color:"black"}}},
+        scales:{r:{pointLabels:{color:"black"},ticks:{color:"black"}}}
     }
 });
 
@@ -218,29 +203,17 @@ const doc = new jsPDF();
 let principal = ultimoResultado.top3[0][0];
 let p = perfiles[principal];
 
-doc.setFontSize(18);
-doc.text("Informe de Personalidad - Arquetipos", 10, 15);
+doc.setFontSize(16);
+doc.text("Informe de Personalidad",10,15);
 
-doc.setFontSize(12);
-doc.text(`Arquetipo principal: ${principal}`,10,30);
+doc.text(`Arquetipo: ${principal}`,10,30);
 doc.text(`Descripción: ${p.descripcion}`,10,40);
-doc.text(`Fortalezas: ${p.fortalezas}`,10,50);
-doc.text(`Riesgos: ${p.riesgos}`,10,60);
-doc.text(`Evolución: ${p.evolucion}`,10,70);
 
 const canvas = document.getElementById("grafico");
 const imgData = canvas.toDataURL("image/png",1.0);
 
-doc.addImage(imgData,"PNG",10,90,180,80);
+doc.addImage(imgData,"PNG",10,60,180,80);
 
-doc.addPage();
-
-doc.setFontSize(14);
-doc.text("Análisis avanzado con Inteligencia Artificial",10,15);
-
-doc.setFontSize(9);
-doc.text(doc.splitTextToSize(promptTexto,180),10,30);
-
-doc.save("informe_arquetipos.pdf");
+doc.save("resultado.pdf");
 
 }

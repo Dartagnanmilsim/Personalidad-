@@ -1,1 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test de Arquetipos Masculinos PRO</title>
 
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>🔥 Test de Arquetipos Masculinos</h1>
+<p class="subtitle">Responde del 1 al 5 (1 = Nunca | 5 = Siempre)</p>
+
+<div id="questions"></div>
+
+<button onclick="calcular()">Ver Resultado</button>
+
+<div id="resultado" class="result"></div>
+
+<canvas id="grafico"></canvas>
+
+<button id="pdfBtn" onclick="descargarPDF()" style="display:none;">
+Descargar PDF
+</button>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

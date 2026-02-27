@@ -3,41 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Test de Arquetipos</title>
+<title>Champions Top 8</title>
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="styles.css">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 </head>
+
 <body>
 
-<div class="app">
+<h1>⚽ Champions Top 8</h1>
 
-<header>
-<h1>Test de Arquetipos</h1>
-<p>Responde según tu comportamiento habitual</p>
-</header>
+<!-- PARTICIPANTE -->
+<div class="card">
 
-<div id="questions" class="questions"></div>
+<h2>📝 Participante</h2>
 
-<button class="primary-btn" onclick="calcular()">Ver Resultado</button>
+<select id="selectNombre">
+<option value="">Nuevo participante</option>
+</select>
 
-<div id="resultado" class="result"></div>
+<input id="nombre" placeholder="Nombre">
 
-<canvas id="grafico"></canvas>
+<div id="panelFases"></div>
 
-<button id="copyPromptBtn" class="secondary-btn" onclick="copiarPrompt()" style="display:none;">
-Copiar Prompt para ChatGPT
-</button>
-
-<button id="pdfBtn" class="secondary-btn" onclick="descargarPDF()" style="display:none;">
-Descargar Informe PDF
-</button>
+<button onclick="guardar()">Guardar</button>
 
 </div>
 
+
+<!-- ADMIN -->
+<div class="card">
+
+<h2>🔐 Acceso Admin</h2>
+
+<input id="adminPass" type="password" placeholder="Clave admin">
+
+<button onclick="loginAdmin()">Entrar</button>
+
+<p id="modo">Modo 👀 Solo ver</p>
+
+</div>
+
+
+<!-- FASES ADMIN -->
+<div class="card" id="adminFases" style="display:none">
+
+<h2>⚙️ Fases activas</h2>
+
+<label>Cuartos <input type="checkbox" id="check-cuartos"></label>
+<label>Semifinal <input type="checkbox" id="check-semifinal"></label>
+<label>Final <input type="checkbox" id="check-final"></label>
+<label>Campeón <input type="checkbox" id="check-campeon"></label>
+
+<button onclick="guardarConfig()">Guardar Configuración</button>
+
+</div>
+
+
+<!-- RESULTADOS -->
+<div class="card" id="adminResultados" style="display:none">
+
+<h2>🏆 Resultados Oficiales</h2>
+
+<div id="res-cuartos"></div>
+<div id="res-semifinal"></div>
+<div id="res-final"></div>
+<div id="res-campeon"></div>
+
+<button onclick="guardarResultados()">Guardar Resultados</button>
+
+</div>
+
+
+<!-- TABLA PUNTOS -->
+<div class="card">
+
+<h2>📊 Sistema de Puntos</h2>
+
+<div>Cuartos = 1 punto</div>
+<div>Semifinal = 2 puntos</div>
+<div>Final = 3 puntos</div>
+<div>Campeón = 5 puntos</div>
+
+</div>
+
+
+<!-- PARTICIPANTES -->
+<div class="card">
+
+<h2>👥 Participantes</h2>
+
+<div id="lista"></div>
+
+</div>
+
+
+<!-- RANKING -->
+<div class="card">
+
+<h2>🏆 Ranking</h2>
+
+<div id="ranking"></div>
+
+</div>
+
+
 <script src="script.js"></script>
+
 </body>
 </html>

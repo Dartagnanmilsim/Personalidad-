@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Test de Arquetipos</title>
+
+<title>Test de Liderazgo</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -11,33 +13,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </head>
+
 <body>
 
 <div class="app">
 
-<header>
-<h1>Test de Arquetipos</h1>
-<p>Responde según tu comportamiento habitual</p>
-</header>
+  <div class="card">
 
-<div id="questions" class="questions"></div>
+    <h1>Estilo de Liderazgo</h1>
 
-<button class="primary-btn" onclick="calcular()">Ver Resultado</button>
+    <div class="progress-container">
+      <div id="progress"></div>
+    </div>
 
-<div id="resultado" class="result"></div>
+    <div id="questionContainer">
 
-<canvas id="grafico"></canvas>
+      <h2 id="question"></h2>
 
-<button id="copyPromptBtn" class="secondary-btn" onclick="copiarPrompt()" style="display:none;">
-Copiar Prompt para ChatGPT
-</button>
+      <div id="options" class="options"></div>
 
-<button id="pdfBtn" class="secondary-btn" onclick="descargarPDF()" style="display:none;">
-Descargar Informe PDF
-</button>
+    </div>
+
+    <div id="result" class="hidden"></div>
+
+  </div>
 
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>

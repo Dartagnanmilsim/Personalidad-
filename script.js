@@ -1,209 +1,232 @@
-const preguntas = [
-"Las personas me buscan para decisiones importantes",
-"Asumo responsabilidad por otros",
-"Soy persistente hasta lograr objetivos",
-"Prefiero actuar rápido",
-"Analizo antes de actuar",
-"Me gusta aprender profundamente",
-"Expreso mis sentimientos fácilmente",
-"Disfruto experiencias sensoriales",
-"Necesito libertad para decidir",
-"Me aburre la rutina",
-"Me gusta crear proyectos",
-"Disfruto construir algo duradero",
-"Cuestiono normas absurdas",
-"Voy contra la corriente",
-"Uso humor en situaciones difíciles",
-"Me consideran divertido",
-"Cumplo compromisos",
-"Me importa contribuir a otros",
-"Personas me piden consejos",
-"Disfruto ayudar a crecer",
-"Necesito progreso",
-"La competencia me motiva",
-"Reflexiono sobre la vida",
-"Busco comprenderme"
+// =====================
+// (TODO LO QUE YA TENÍAS)
+// =====================
+
+// preguntas iguales (no cambiadas)
+const questions = [
+  { text: "Antes de tomar decisiones importantes considero el impacto en las personas.", style: "Afable" },
+  { text: "Prefiero resolver conflictos mediante diálogo y consenso.", style: "Afable" },
+  { text: "Las personas suelen confiar en mí para hablar de problemas.", style: "Afable" },
+  { text: "Dedico tiempo a conocer personalmente a mi equipo.", style: "Afable" },
+  { text: "Me preocupa mantener un ambiente laboral positivo.", style: "Afable" },
+  { text: "Evito decisiones que puedan afectar emocionalmente al equipo.", style: "Afable" },
+
+  { text: "Antes de actuar necesito información suficiente y datos claros.", style: "Analitico" },
+  { text: "Analizo riesgos antes de tomar decisiones relevantes.", style: "Analitico" },
+  { text: "Prefiero procesos estructurados y organizados.", style: "Analitico" },
+  { text: "Me enfoco en precisión y calidad más que en velocidad.", style: "Analitico" },
+  { text: "Suelo cuestionar ideas hasta entenderlas completamente.", style: "Analitico" },
+  { text: "Planifico escenarios antes de ejecutar.", style: "Analitico" },
+
+  { text: "Tomo decisiones rápidamente incluso con información incompleta.", style: "Emprendedor" },
+  { text: "Me siento cómodo asumiendo riesgos.", style: "Emprendedor" },
+  { text: "Me enfoco intensamente en lograr objetivos.", style: "Emprendedor" },
+  { text: "Prefiero acción inmediata antes que análisis prolongado.", style: "Emprendedor" },
+  { text: "Me motiva superar desafíos difíciles.", style: "Emprendedor" },
+  { text: "Exijo alto rendimiento de mi equipo.", style: "Emprendedor" },
+
+  { text: "Me entusiasma compartir ideas y visiones de futuro.", style: "Expresivo" },
+  { text: "Las personas suelen contagiarse de mi energía.", style: "Expresivo" },
+  { text: "Disfruto persuadir e influir en otros.", style: "Expresivo" },
+  { text: "Prefiero entornos dinámicos y creativos.", style: "Expresivo" },
+  { text: "Me resulta natural motivar equipos.", style: "Expresivo" },
+  { text: "Comunico con entusiasmo y emoción.", style: "Expresivo" }
 ];
 
-const perfiles = {
-Rey:{descripcion:"Líder natural orientado al orden.",fortalezas:"Autoridad, visión.",riesgos:"Control excesivo.",evolucion:"Delegar y confiar."},
-Guerrero:{descripcion:"Ejecutor disciplinado.",fortalezas:"Acción, disciplina.",riesgos:"Estrés.",evolucion:"Equilibrar descanso."},
-Mago:{descripcion:"Estratega analítico.",fortalezas:"Inteligencia.",riesgos:"Aislamiento.",evolucion:"Aplicar conocimiento."},
-Amante:{descripcion:"Conector emocional.",fortalezas:"Empatía.",riesgos:"Dependencia.",evolucion:"Límites sanos."},
-Explorador:{descripcion:"Buscador de libertad.",fortalezas:"Curiosidad.",riesgos:"Inestabilidad.",evolucion:"Compromiso."},
-Creador:{descripcion:"Innovador.",fortalezas:"Creatividad.",riesgos:"Perfeccionismo.",evolucion:"Ejecutar."},
-Rebelde:{descripcion:"Transformador.",fortalezas:"Valentía.",riesgos:"Conflicto.",evolucion:"Construir."},
-Bufón:{descripcion:"Carismático.",fortalezas:"Alegría.",riesgos:"Inmadurez.",evolucion:"Responsabilidad."},
-Ciudadano:{descripcion:"Responsable.",fortalezas:"Lealtad.",riesgos:"Conformismo.",evolucion:"Iniciativa."},
-Mentor:{descripcion:"Guía.",fortalezas:"Enseñanza.",riesgos:"Rigidez.",evolucion:"Humildad."},
-Héroe:{descripcion:"Competidor.",fortalezas:"Logro.",riesgos:"Ego.",evolucion:"Propósito."},
-Sabio:{descripcion:"Reflexivo.",fortalezas:"Perspectiva.",riesgos:"Pasividad.",evolucion:"Acción."}
-};
+const scale = ["Nunca","Rara vez","A veces","Frecuentemente","Siempre"];
 
-const contenedor = document.getElementById("questions");
+let current = 0;
+let answers = [];
+let chartInstance = null;
+let generatedPrompt = "";
 
-preguntas.forEach((p,i)=>{
+// DOM
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const progressEl = document.getElementById("progress");
+const resultEl = document.getElementById("result");
 
-contenedor.innerHTML += `
-<div class="question-row">
-    <div class="question-text">
-        ${i+1}. ${p}
-    </div>
+function showQuestion() {
 
-    <select id="q${i}">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3" selected>3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-    </select>
-</div>
+  questionEl.innerText = questions[current].text;
+  optionsEl.innerHTML = "";
+
+  scale.forEach((label, index) => {
+
+    const btn = document.createElement("button");
+    btn.innerText = label;
+
+    btn.onclick = () => {
+
+      answers[current] = index + 1;
+      current++;
+
+      if (current < questions.length) showQuestion();
+      else calculateResult();
+
+      updateProgress();
+    };
+
+    optionsEl.appendChild(btn);
+  });
+
+  updateProgress();
+}
+
+function updateProgress() {
+  progressEl.style.width = (current / questions.length) * 100 + "%";
+}
+
+// =====================
+// NUEVO ANALISIS DETALLADO DE PUNTAJES
+// =====================
+
+function buildProfileDetails(scores){
+
+  const total = Object.values(scores).reduce((a,b)=>a+b,0);
+
+  const percentages = {};
+
+  Object.keys(scores).forEach(key=>{
+    percentages[key] = Math.round((scores[key]/total)*100);
+  });
+
+  const intensity = (value)=>{
+    if(value >= 75) return "Muy alto";
+    if(value >= 55) return "Alto";
+    if(value >= 35) return "Moderado";
+    return "Bajo";
+  };
+
+  let text = "INFORMACIÓN DETALLADA DEL PERFIL\n\n";
+
+  Object.keys(scores).forEach(style=>{
+    text += `${style}: ${scores[style]} puntos (${percentages[style]}%) — Nivel ${intensity(percentages[style])}\n`;
+  });
+
+  return text;
+}
+
+// =====================
+// CALCULO
+// =====================
+
+function calculateResult() {
+
+  const scores = {
+    Afable: 0,
+    Analitico: 0,
+    Emprendedor: 0,
+    Expresivo: 0
+  };
+
+  answers.forEach((value, index) => {
+    scores[questions[index].style] += value;
+  });
+
+  const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+
+  const dominant = sorted[0][0];
+  const secondary = sorted[1][0];
+
+  showResult(scores, dominant, secondary);
+}
+
+// =====================
+// RESULTADO
+// =====================
+
+function showResult(scores, dominant, secondary){
+
+  document.getElementById("questionContainer").style.display = "none";
+
+  resultEl.classList.remove("hidden");
+
+  const profileDetails = buildProfileDetails(scores);
+
+  resultEl.innerHTML = `
+  
+  <div class="result-box">
+
+    <h2>${dominant} — ${secondary}</h2>
+
+    <p><strong>Datos del perfil:</strong></p>
+    <pre>${profileDetails}</pre>
+
+    <canvas id="chart"></canvas>
+
+    <button class="action-btn" onclick="copyPrompt()">Copiar análisis para ChatGPT</button>
+    <button class="action-btn" onclick="downloadPDF()">Descargar PDF</button>
+
+  </div>
+  
+  `;
+
+  generatedPrompt = `
+Mi perfil de liderazgo es ${dominant} con influencia ${secondary}.
+
+${profileDetails}
+
+Analiza este perfil profesionalmente.
 `;
-});
 
-let chart;
-let ultimoResultado;
-let promptTexto="";
-
-function calcular(){
-
-let r = [];
-for(let i=0;i<24;i++){
-    r.push(parseInt(document.getElementById("q"+i).value));
+  createChart(scores);
 }
 
-const arquetipos = {
-Rey: r[0]+r[1],
-Guerrero: r[2]+r[3],
-Mago: r[4]+r[5],
-Amante: r[6]+r[7],
-Explorador: r[8]+r[9],
-Creador: r[10]+r[11],
-Rebelde: r[12]+r[13],
-Bufón: r[14]+r[15],
-Ciudadano: r[16]+r[17],
-Mentor: r[18]+r[19],
-Héroe: r[20]+r[21],
-Sabio: r[22]+r[23]
-};
+// =====================
+// GRAFICO
+// =====================
 
-const sorted = Object.entries(arquetipos).sort((a,b)=>b[1]-a[1]);
-const top3 = sorted.slice(0,3);
+function createChart(scores){
 
-ultimoResultado = {arquetipos, top3};
+  const ctx = document.getElementById("chart");
 
-let principal = top3[0][0];
-let segundo = top3[1][0];
-let tercero = top3[2][0];
+  if(chartInstance) chartInstance.destroy();
 
-let p = perfiles[principal];
-
-document.getElementById("resultado").style.display="block";
-document.getElementById("resultado").innerHTML = `
-<h2>Arquetipo Principal: ${principal}</h2>
-
-<p><b>Descripción:</b> ${p.descripcion}</p>
-<p><b>Fortalezas:</b> ${p.fortalezas}</p>
-<p><b>Riesgos:</b> ${p.riesgos}</p>
-<p><b>Evolución:</b> ${p.evolucion}</p>
-
-<hr>
-
-<p><b>Combinación:</b> ${principal}, ${segundo}, ${tercero}</p>
-
-<h3>¿Qué significa este resultado?</h3>
-
-<p>
-Tu arquetipo dominante representa la energía psicológica que más influye actualmente en tu forma de pensar,
-actuar y tomar decisiones.
-</p>
-
-<ul>
-<li>Influye en tu forma de enfrentar retos</li>
-<li>Determina tu estilo de decisiones</li>
-<li>Impacta tu liderazgo y comunicación</li>
-<li>Refleja motivaciones internas</li>
-<li>Muestra áreas de crecimiento</li>
-</ul>
-`;
-
-promptTexto = generarPrompt(arquetipos, principal, segundo, tercero);
-
-document.getElementById("copyPromptBtn").style.display="block";
-document.getElementById("pdfBtn").style.display="block";
-
-crearGrafico(arquetipos);
-
-}
-
-function generarPrompt(arquetipos, principal, segundo, tercero){
-
-let puntajesTexto = Object.entries(arquetipos)
-.map(a => `${a[0]}: ${a[1]}`)
-.join("\n");
-
-return `Actúa como psicólogo especializado en arquetipos de personalidad masculina.
-
-Arquetipo principal: ${principal}
-Segundo: ${segundo}
-Tercero: ${tercero}
-
-Puntajes:
-${puntajesTexto}
-
-Analiza perfil profundo, fortalezas, riesgos, liderazgo, relaciones y evolución.`;
-}
-
-function copiarPrompt(){
-navigator.clipboard.writeText(promptTexto);
-alert("Prompt copiado");
-}
-
-function crearGrafico(data){
-
-const ctx = document.getElementById('grafico');
-
-if(chart) chart.destroy();
-
-chart = new Chart(ctx, {
+  chartInstance = new Chart(ctx, {
     type: 'radar',
     data: {
-        labels: Object.keys(data),
-        datasets: [{
-            label: 'Nivel de desarrollo',
-            data: Object.values(data),
-            backgroundColor: 'rgba(56,189,248,0.2)',
-            borderColor: '#38bdf8',
-            pointBackgroundColor: '#38bdf8'
-        }]
+      labels: Object.keys(scores),
+      datasets: [{
+        data: Object.values(scores),
+        backgroundColor: 'rgba(79,70,229,0.25)',
+        borderColor: '#4f46e5'
+      }]
     },
-    options:{
-        plugins:{legend:{labels:{color:"black"}}},
-        scales:{r:{pointLabels:{color:"black"},ticks:{color:"black"}}}
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { r: { beginAtZero: true } }
     }
-});
-
+  });
 }
 
-async function descargarPDF(){
+// =====================
+// COPIAR
+// =====================
 
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-
-let principal = ultimoResultado.top3[0][0];
-let p = perfiles[principal];
-
-doc.setFontSize(16);
-doc.text("Informe de Personalidad",10,15);
-
-doc.text(`Arquetipo: ${principal}`,10,30);
-doc.text(`Descripción: ${p.descripcion}`,10,40);
-
-const canvas = document.getElementById("grafico");
-const imgData = canvas.toDataURL("image/png",1.0);
-
-doc.addImage(imgData,"PNG",10,60,180,80);
-
-doc.save("resultado.pdf");
-
+function copyPrompt(){
+  navigator.clipboard.writeText(generatedPrompt);
+  alert("Prompt copiado");
 }
+
+// =====================
+// PDF
+// =====================
+
+async function downloadPDF(){
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("Resultado de Liderazgo", 20, 20);
+
+  doc.setFontSize(12);
+  doc.text(resultEl.innerText, 20, 35, { maxWidth: 170 });
+
+  doc.save("resultado_liderazgo.pdf");
+}
+
+// =====================
+
+showQuestion();

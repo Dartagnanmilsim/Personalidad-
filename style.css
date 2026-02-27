@@ -1,93 +1,76 @@
 body{
-    margin:0;
-    font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top,#0f172a,#020617);
-    color:white;
-}
-
-.app{
-    max-width:800px;
-    margin:auto;
-    padding:20px;
-}
-
-header{
-    text-align:center;
-    margin-bottom:25px;
+font-family: Arial, sans-serif;
+background:#f3f4f6;
+padding:20px;
 }
 
 h1{
-    color:#38bdf8;
-    margin-bottom:5px;
+text-align:center;
 }
 
-.questions{
-    display:flex;
-    flex-direction:column;
-    gap:14px;
+.card{
+background:white;
+padding:20px;
+border-radius:18px;
+margin:20px auto;
+max-width:500px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 
-.question-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:#0b1220;
-    padding:14px 16px;
-    border-radius:10px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+input, select{
+width:100%;
+padding:14px;
+margin:10px 0;
+border-radius:12px;
+border:1px solid #ddd;
+font-size:16px;
 }
 
-.question-text{
-    flex:1;
-    padding-right:15px;
-    line-height:1.4;
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#4CAF50;
+color:white;
+font-size:16px;
+margin-top:10px;
+cursor:pointer;
 }
 
-select{
-    width:70px;
-    padding:6px;
-    border-radius:6px;
-    border:none;
-    text-align:center;
-    font-size:16px;
+button:hover{
+background:#43a047;
 }
 
-.primary-btn{
-    margin-top:25px;
-    width:100%;
-    padding:16px;
-    border:none;
-    border-radius:12px;
-    background:#38bdf8;
-    color:black;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
+.equipos{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-bottom:10px;
 }
 
-.secondary-btn{
-    margin-top:15px;
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:10px;
-    background:#1e293b;
-    color:white;
-    cursor:pointer;
+.equipo{
+background:#e5e7eb;
+padding:10px;
+border-radius:10px;
+text-align:center;
+cursor:pointer;
 }
 
-.result{
-    margin-top:25px;
-    background:#020617;
-    padding:20px;
-    border-radius:12px;
-    display:none;
-    line-height:1.6;
+.equipo.activo{
+background:#4CAF50;
+color:white;
 }
 
-canvas{
-    margin-top:25px;
-    background:white;
-    border-radius:10px;
-    padding:10px;
+.participante{
+background:#f1f1f1;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+}
+
+.eliminar{
+background:#e53935;
+width:auto;
+margin-top:5px;
 }

@@ -1,209 +1,408 @@
-const preguntas = [
-"Las personas me buscan para decisiones importantes",
-"Asumo responsabilidad por otros",
-"Soy persistente hasta lograr objetivos",
-"Prefiero actuar rápido",
-"Analizo antes de actuar",
-"Me gusta aprender profundamente",
-"Expreso mis sentimientos fácilmente",
-"Disfruto experiencias sensoriales",
-"Necesito libertad para decidir",
-"Me aburre la rutina",
-"Me gusta crear proyectos",
-"Disfruto construir algo duradero",
-"Cuestiono normas absurdas",
-"Voy contra la corriente",
-"Uso humor en situaciones difíciles",
-"Me consideran divertido",
-"Cumplo compromisos",
-"Me importa contribuir a otros",
-"Personas me piden consejos",
-"Disfruto ayudar a crecer",
-"Necesito progreso",
-"La competencia me motiva",
-"Reflexiono sobre la vida",
-"Busco comprenderme"
+// ================= FIREBASE =================
+
+const firebaseConfig = {
+apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
+authDomain: "champions-top8.firebaseapp.com",
+databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
+projectId: "champions-top8"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+
+// ================= DATA =================
+
+const equipos = [
+"Real Madrid","Manchester City","Bayern","PSG",
+"Barcelona","Arsenal","Inter","Milan",
+"Atlético","Dortmund","Napoli","Benfica",
+"Porto","Leipzig","Juventus","Chelsea"
 ];
 
-const perfiles = {
-Rey:{descripcion:"Líder natural orientado al orden.",fortalezas:"Autoridad, visión.",riesgos:"Control excesivo.",evolucion:"Delegar y confiar."},
-Guerrero:{descripcion:"Ejecutor disciplinado.",fortalezas:"Acción, disciplina.",riesgos:"Estrés.",evolucion:"Equilibrar descanso."},
-Mago:{descripcion:"Estratega analítico.",fortalezas:"Inteligencia.",riesgos:"Aislamiento.",evolucion:"Aplicar conocimiento."},
-Amante:{descripcion:"Conector emocional.",fortalezas:"Empatía.",riesgos:"Dependencia.",evolucion:"Límites sanos."},
-Explorador:{descripcion:"Buscador de libertad.",fortalezas:"Curiosidad.",riesgos:"Inestabilidad.",evolucion:"Compromiso."},
-Creador:{descripcion:"Innovador.",fortalezas:"Creatividad.",riesgos:"Perfeccionismo.",evolucion:"Ejecutar."},
-Rebelde:{descripcion:"Transformador.",fortalezas:"Valentía.",riesgos:"Conflicto.",evolucion:"Construir."},
-Bufón:{descripcion:"Carismático.",fortalezas:"Alegría.",riesgos:"Inmadurez.",evolucion:"Responsabilidad."},
-Ciudadano:{descripcion:"Responsable.",fortalezas:"Lealtad.",riesgos:"Conformismo.",evolucion:"Iniciativa."},
-Mentor:{descripcion:"Guía.",fortalezas:"Enseñanza.",riesgos:"Rigidez.",evolucion:"Humildad."},
-Héroe:{descripcion:"Competidor.",fortalezas:"Logro.",riesgos:"Ego.",evolucion:"Propósito."},
-Sabio:{descripcion:"Reflexivo.",fortalezas:"Perspectiva.",riesgos:"Pasividad.",evolucion:"Acción."}
+const limites = {
+cuartos:8,
+semifinal:4,
+final:2,
+campeon:1
 };
 
-const contenedor = document.getElementById("questions");
+const puntosFase = {
+cuartos:1,
+semifinal:2,
+final:3,
+campeon:5
+};
 
-preguntas.forEach((p,i)=>{
+let admin=false;
+let config={};
+let resultados={};
+let participantes={};
 
-contenedor.innerHTML += `
-<div class="question-row">
-    <div class="question-text">
-        ${i+1}. ${p}
-    </div>
 
-    <select id="q${i}">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3" selected>3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-    </select>
+// ================= ADMIN =================
+
+function loginAdmin(){
+
+const pass=document.getElementById("adminPass").value;
+
+if(pass==="1234"){
+
+admin=true;
+
+document.getElementById("modo").innerText="Modo 🔓 Administrador";
+document.getElementById("adminFases").style.display="block";
+document.getElementById("adminResultados").style.display="block";
+
+renderResultadosAdmin();
+renderLista();
+
+}else{
+
+alert("Clave incorrecta");
+
+}
+
+}
+
+
+// ================= SELECT NOMBRES =================
+
+function cargarSelectNombres(){
+
+const select=document.getElementById("selectNombre");
+
+select.innerHTML=`<option value="">Nuevo participante</option>`;
+
+Object.keys(participantes).forEach(id=>{
+
+const p=participantes[id];
+
+select.innerHTML+=`
+<option value="${p.nombre}">
+${p.nombre}
+</option>
+`;
+
+});
+
+}
+
+
+document.getElementById("selectNombre").addEventListener("change",function(){
+
+const val=this.value;
+
+if(val){
+document.getElementById("nombre").value=val;
+}
+
+});
+
+
+// ================= ELIMINAR =================
+
+function eliminarParticipante(id){
+
+if(!admin){
+alert("Solo administrador");
+return;
+}
+
+if(!confirm("¿Eliminar participante?")) return;
+
+db.ref("participantes/"+id).remove();
+
+}
+
+
+// ================= PANEL PARTICIPANTE =================
+
+function renderPanel(){
+
+const panel=document.getElementById("panelFases");
+panel.innerHTML="";
+
+Object.keys(limites).forEach(fase=>{
+
+if(!config[fase]) return;
+
+panel.innerHTML+=`
+<h3>${fase.toUpperCase()} (${limites[fase]})</h3>
+<div class="equipos" id="pick-${fase}"></div>
+`;
+
+const cont=document.getElementById(`pick-${fase}`);
+
+equipos.forEach(eq=>{
+
+const div=document.createElement("div");
+div.className="equipo";
+div.innerText=eq;
+
+div.onclick=()=>{
+
+const activos=cont.querySelectorAll(".activo");
+
+if(!div.classList.contains("activo") && activos.length>=limites[fase]){
+alert("Límite alcanzado");
+return;
+}
+
+div.classList.toggle("activo");
+
+};
+
+cont.appendChild(div);
+
+});
+
+});
+
+}
+
+
+// ================= GUARDAR =================
+
+function guardar(){
+
+const nombre=document.getElementById("nombre").value.trim();
+if(!nombre) return alert("Ingrese nombre");
+
+const picks={};
+
+Object.keys(limites).forEach(fase=>{
+
+const cont=document.getElementById(`pick-${fase}`);
+if(!cont) return;
+
+const activos=cont.querySelectorAll(".activo");
+const lista=Array.from(activos).map(e=>e.innerText);
+
+if(lista.length>0) picks[fase]=lista;
+
+});
+
+
+let idExistente=null;
+
+Object.keys(participantes).forEach(id=>{
+
+if(participantes[id].nombre.toLowerCase()===nombre.toLowerCase())
+idExistente=id;
+
+});
+
+
+if(idExistente){
+
+const participante=participantes[idExistente];
+
+let faseDuplicada=false;
+
+Object.keys(picks).forEach(fase=>{
+
+if(participante.picks && participante.picks[fase]){
+faseDuplicada=true;
+}
+
+});
+
+if(faseDuplicada){
+alert("Esta persona ya registró esa fase");
+return;
+}
+
+db.ref("participantes/"+idExistente+"/picks").update(picks);
+
+}else{
+
+db.ref("participantes").push({
+nombre,
+picks
+});
+
+}
+
+}
+
+
+// ================= CONFIG =================
+
+function guardarConfig(){
+
+config={
+cuartos:document.getElementById("check-cuartos").checked,
+semifinal:document.getElementById("check-semifinal").checked,
+final:document.getElementById("check-final").checked,
+campeon:document.getElementById("check-campeon").checked
+};
+
+db.ref("config").set(config);
+
+}
+
+
+// ================= RESULTADOS ADMIN =================
+
+function renderResultadosAdmin(){
+
+Object.keys(limites).forEach(fase=>{
+
+const cont=document.getElementById("res-"+fase);
+cont.innerHTML=`<h4>${fase}</h4><div class="equipos" id="res-grid-${fase}"></div>`;
+
+const grid=document.getElementById(`res-grid-${fase}`);
+
+equipos.forEach(eq=>{
+
+const div=document.createElement("div");
+div.className="equipo";
+div.innerText=eq;
+
+div.onclick=()=>{
+
+if(!admin) return;
+
+div.classList.toggle("activo");
+
+};
+
+grid.appendChild(div);
+
+});
+
+});
+
+}
+
+
+function guardarResultados(){
+
+const data={};
+
+Object.keys(limites).forEach(fase=>{
+
+const activos=document.querySelectorAll(`#res-grid-${fase} .activo`);
+data[fase]=Array.from(activos).map(e=>e.innerText);
+
+});
+
+db.ref("resultados").set(data);
+
+}
+
+
+// ================= PUNTOS =================
+
+function calcularPuntos(picks){
+
+let total=0;
+
+Object.keys(picks||{}).forEach(fase=>{
+
+if(!resultados[fase]) return;
+
+picks[fase].forEach(eq=>{
+
+if(resultados[fase].includes(eq))
+total+=puntosFase[fase];
+
+});
+
+});
+
+return total;
+
+}
+
+
+// ================= LISTA =================
+
+function renderLista(){
+
+const cont=document.getElementById("lista");
+cont.innerHTML="";
+
+Object.keys(participantes).forEach(id=>{
+
+const p=participantes[id];
+
+let picksHTML="";
+
+Object.keys(p.picks||{}).forEach(fase=>{
+
+picksHTML+=`<div><b>${fase}</b>: ${p.picks[fase].join(" • ")}</div>`;
+
+});
+
+const puntos=calcularPuntos(p.picks);
+
+cont.innerHTML+=`
+<div class="participante">
+<b>${p.nombre}</b> — ${puntos} pts
+
+${admin ? `
+<button class="eliminar" onclick="eliminarParticipante('${id}')">
+Eliminar
+</button>
+` : ""}
+
+${picksHTML}
 </div>
 `;
+
 });
 
-let chart;
-let ultimoResultado;
-let promptTexto="";
+renderRanking();
 
-function calcular(){
-
-let r = [];
-for(let i=0;i<24;i++){
-    r.push(parseInt(document.getElementById("q"+i).value));
 }
 
-const arquetipos = {
-Rey: r[0]+r[1],
-Guerrero: r[2]+r[3],
-Mago: r[4]+r[5],
-Amante: r[6]+r[7],
-Explorador: r[8]+r[9],
-Creador: r[10]+r[11],
-Rebelde: r[12]+r[13],
-Bufón: r[14]+r[15],
-Ciudadano: r[16]+r[17],
-Mentor: r[18]+r[19],
-Héroe: r[20]+r[21],
-Sabio: r[22]+r[23]
+
+// ================= RANKING =================
+
+function renderRanking(){
+
+const cont=document.getElementById("ranking");
+
+let arr=Object.keys(participantes).map(id=>{
+
+const p=participantes[id];
+
+return{
+nombre:p.nombre,
+puntos:calcularPuntos(p.picks)
 };
 
-const sorted = Object.entries(arquetipos).sort((a,b)=>b[1]-a[1]);
-const top3 = sorted.slice(0,3);
+});
 
-ultimoResultado = {arquetipos, top3};
+arr.sort((a,b)=>b.puntos-a.puntos);
 
-let principal = top3[0][0];
-let segundo = top3[1][0];
-let tercero = top3[2][0];
+cont.innerHTML="";
 
-let p = perfiles[principal];
+arr.forEach((p,i)=>{
 
-document.getElementById("resultado").style.display="block";
-document.getElementById("resultado").innerHTML = `
-<h2>Arquetipo Principal: ${principal}</h2>
+cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
 
-<p><b>Descripción:</b> ${p.descripcion}</p>
-<p><b>Fortalezas:</b> ${p.fortalezas}</p>
-<p><b>Riesgos:</b> ${p.riesgos}</p>
-<p><b>Evolución:</b> ${p.evolucion}</p>
-
-<hr>
-
-<p><b>Combinación:</b> ${principal}, ${segundo}, ${tercero}</p>
-
-<h3>¿Qué significa este resultado?</h3>
-
-<p>
-Tu arquetipo dominante representa la energía psicológica que más influye actualmente en tu forma de pensar,
-actuar y tomar decisiones.
-</p>
-
-<ul>
-<li>Influye en tu forma de enfrentar retos</li>
-<li>Determina tu estilo de decisiones</li>
-<li>Impacta tu liderazgo y comunicación</li>
-<li>Refleja motivaciones internas</li>
-<li>Muestra áreas de crecimiento</li>
-</ul>
-`;
-
-promptTexto = generarPrompt(arquetipos, principal, segundo, tercero);
-
-document.getElementById("copyPromptBtn").style.display="block";
-document.getElementById("pdfBtn").style.display="block";
-
-crearGrafico(arquetipos);
-
-}
-
-function generarPrompt(arquetipos, principal, segundo, tercero){
-
-let puntajesTexto = Object.entries(arquetipos)
-.map(a => `${a[0]}: ${a[1]}`)
-.join("\n");
-
-return `Actúa como psicólogo especializado en arquetipos de personalidad masculina.
-
-Arquetipo principal: ${principal}
-Segundo: ${segundo}
-Tercero: ${tercero}
-
-Puntajes:
-${puntajesTexto}
-
-Analiza perfil profundo, fortalezas, riesgos, liderazgo, relaciones y evolución.`;
-}
-
-function copiarPrompt(){
-navigator.clipboard.writeText(promptTexto);
-alert("Prompt copiado");
-}
-
-function crearGrafico(data){
-
-const ctx = document.getElementById('grafico');
-
-if(chart) chart.destroy();
-
-chart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-        labels: Object.keys(data),
-        datasets: [{
-            label: 'Nivel de desarrollo',
-            data: Object.values(data),
-            backgroundColor: 'rgba(56,189,248,0.2)',
-            borderColor: '#38bdf8',
-            pointBackgroundColor: '#38bdf8'
-        }]
-    },
-    options:{
-        plugins:{legend:{labels:{color:"black"}}},
-        scales:{r:{pointLabels:{color:"black"},ticks:{color:"black"}}}
-    }
 });
 
 }
 
-async function descargarPDF(){
 
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
+// ================= FIREBASE =================
 
-let principal = ultimoResultado.top3[0][0];
-let p = perfiles[principal];
+db.ref("config").on("value",snap=>{
+config=snap.val()||{};
+renderPanel();
+});
 
-doc.setFontSize(16);
-doc.text("Informe de Personalidad",10,15);
+db.ref("resultados").on("value",snap=>{
+resultados=snap.val()||{};
+renderLista();
+});
 
-doc.text(`Arquetipo: ${principal}`,10,30);
-doc.text(`Descripción: ${p.descripcion}`,10,40);
-
-const canvas = document.getElementById("grafico");
-const imgData = canvas.toDataURL("image/png",1.0);
-
-doc.addImage(imgData,"PNG",10,60,180,80);
-
-doc.save("resultado.pdf");
-
-}
+db.ref("participantes").on("value",snap=>{
+participantes=snap.val()||{};
+renderLista();
+cargarSelectNombres();
+});

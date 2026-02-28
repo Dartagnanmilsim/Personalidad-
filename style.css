@@ -18,6 +18,7 @@ header{
 
 h1{
     color:#38bdf8;
+    margin-bottom:5px;
 }
 
 .questions{
@@ -33,17 +34,22 @@ h1{
     background:#0b1220;
     padding:14px 16px;
     border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
 
 .question-text{
     flex:1;
     padding-right:15px;
+    line-height:1.4;
 }
 
 select{
     width:70px;
     padding:6px;
     border-radius:6px;
+    border:none;
+    text-align:center;
+    font-size:16px;
 }
 
 .primary-btn{
@@ -56,6 +62,7 @@ select{
     color:black;
     font-size:18px;
     font-weight:bold;
+    cursor:pointer;
 }
 
 .secondary-btn{
@@ -66,6 +73,7 @@ select{
     border-radius:10px;
     background:#1e293b;
     color:white;
+    cursor:pointer;
 }
 
 .result{
@@ -74,10 +82,12 @@ select{
     padding:20px;
     border-radius:12px;
     display:none;
+    line-height:1.6;
 }
 
 canvas{
     margin-top:25px;
     background:white;
     border-radius:10px;
+    padding:10px;
 }

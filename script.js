@@ -1,408 +1,121 @@
-// ================= FIREBASE =================
+const preguntas = [
 
-const firebaseConfig = {
-apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
-authDomain: "champions-top8.firebaseapp.com",
-databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
-projectId: "champions-top8"
-};
+"Me preocupo por el bienestar de las personas",
+"Busco mantener un ambiente positivo en el equipo",
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+"Tomo decisiones rápidamente para avanzar",
+"Me enfoco en lograr resultados concretos",
 
+"Analizo información antes de decidir",
+"Prefiero trabajar con procesos claros",
 
-// ================= DATA =================
-
-const equipos = [
-"Real Madrid","Manchester City","Bayern","PSG",
-"Barcelona","Arsenal","Inter","Milan",
-"Atlético","Dortmund","Napoli","Benfica",
-"Porto","Leipzig","Juventus","Chelsea"
+"Me gusta motivar e influir en otros",
+"Disfruto interactuar y comunicar ideas"
 ];
 
-const limites = {
-cuartos:8,
-semifinal:4,
-final:2,
-campeon:1
+const estilos = {
+Afable: [0,1],
+Emprendedor: [2,3],
+Analitico: [4,5],
+Extrovertido: [6,7]
 };
 
-const puntosFase = {
-cuartos:1,
-semifinal:2,
-final:3,
-campeon:5
-};
-
-let admin=false;
-let config={};
-let resultados={};
-let participantes={};
-
-
-// ================= ADMIN =================
-
-function loginAdmin(){
-
-const pass=document.getElementById("adminPass").value;
-
-if(pass==="1234"){
-
-admin=true;
-
-document.getElementById("modo").innerText="Modo 🔓 Administrador";
-document.getElementById("adminFases").style.display="block";
-document.getElementById("adminResultados").style.display="block";
-
-renderResultadosAdmin();
-renderLista();
-
-}else{
-
-alert("Clave incorrecta");
-
-}
-
-}
-
-
-// ================= SELECT NOMBRES =================
-
-function cargarSelectNombres(){
-
-const select=document.getElementById("selectNombre");
-
-select.innerHTML=`<option value="">Nuevo participante</option>`;
-
-Object.keys(participantes).forEach(id=>{
-
-const p=participantes[id];
-
-select.innerHTML+=`
-<option value="${p.nombre}">
-${p.nombre}
-</option>
-`;
-
-});
-
-}
-
-
-document.getElementById("selectNombre").addEventListener("change",function(){
-
-const val=this.value;
-
-if(val){
-document.getElementById("nombre").value=val;
-}
-
-});
-
-
-// ================= ELIMINAR =================
-
-function eliminarParticipante(id){
-
-if(!admin){
-alert("Solo administrador");
-return;
-}
-
-if(!confirm("¿Eliminar participante?")) return;
-
-db.ref("participantes/"+id).remove();
-
-}
-
-
-// ================= PANEL PARTICIPANTE =================
-
-function renderPanel(){
-
-const panel=document.getElementById("panelFases");
-panel.innerHTML="";
-
-Object.keys(limites).forEach(fase=>{
-
-if(!config[fase]) return;
-
-panel.innerHTML+=`
-<h3>${fase.toUpperCase()} (${limites[fase]})</h3>
-<div class="equipos" id="pick-${fase}"></div>
-`;
-
-const cont=document.getElementById(`pick-${fase}`);
-
-equipos.forEach(eq=>{
-
-const div=document.createElement("div");
-div.className="equipo";
-div.innerText=eq;
-
-div.onclick=()=>{
-
-const activos=cont.querySelectorAll(".activo");
-
-if(!div.classList.contains("activo") && activos.length>=limites[fase]){
-alert("Límite alcanzado");
-return;
-}
-
-div.classList.toggle("activo");
-
-};
-
-cont.appendChild(div);
-
-});
-
-});
-
-}
-
-
-// ================= GUARDAR =================
-
-function guardar(){
-
-const nombre=document.getElementById("nombre").value.trim();
-if(!nombre) return alert("Ingrese nombre");
-
-const picks={};
-
-Object.keys(limites).forEach(fase=>{
-
-const cont=document.getElementById(`pick-${fase}`);
-if(!cont) return;
-
-const activos=cont.querySelectorAll(".activo");
-const lista=Array.from(activos).map(e=>e.innerText);
-
-if(lista.length>0) picks[fase]=lista;
-
-});
-
-
-let idExistente=null;
-
-Object.keys(participantes).forEach(id=>{
-
-if(participantes[id].nombre.toLowerCase()===nombre.toLowerCase())
-idExistente=id;
-
-});
-
-
-if(idExistente){
-
-const participante=participantes[idExistente];
-
-let faseDuplicada=false;
-
-Object.keys(picks).forEach(fase=>{
-
-if(participante.picks && participante.picks[fase]){
-faseDuplicada=true;
-}
-
-});
-
-if(faseDuplicada){
-alert("Esta persona ya registró esa fase");
-return;
-}
-
-db.ref("participantes/"+idExistente+"/picks").update(picks);
-
-}else{
-
-db.ref("participantes").push({
-nombre,
-picks
-});
-
-}
-
-}
-
-
-// ================= CONFIG =================
-
-function guardarConfig(){
-
-config={
-cuartos:document.getElementById("check-cuartos").checked,
-semifinal:document.getElementById("check-semifinal").checked,
-final:document.getElementById("check-final").checked,
-campeon:document.getElementById("check-campeon").checked
-};
-
-db.ref("config").set(config);
-
-}
-
-
-// ================= RESULTADOS ADMIN =================
-
-function renderResultadosAdmin(){
-
-Object.keys(limites).forEach(fase=>{
-
-const cont=document.getElementById("res-"+fase);
-cont.innerHTML=`<h4>${fase}</h4><div class="equipos" id="res-grid-${fase}"></div>`;
-
-const grid=document.getElementById(`res-grid-${fase}`);
-
-equipos.forEach(eq=>{
-
-const div=document.createElement("div");
-div.className="equipo";
-div.innerText=eq;
-
-div.onclick=()=>{
-
-if(!admin) return;
-
-div.classList.toggle("activo");
-
-};
-
-grid.appendChild(div);
-
-});
-
-});
-
-}
-
-
-function guardarResultados(){
-
-const data={};
-
-Object.keys(limites).forEach(fase=>{
-
-const activos=document.querySelectorAll(`#res-grid-${fase} .activo`);
-data[fase]=Array.from(activos).map(e=>e.innerText);
-
-});
-
-db.ref("resultados").set(data);
-
-}
-
-
-// ================= PUNTOS =================
-
-function calcularPuntos(picks){
-
-let total=0;
-
-Object.keys(picks||{}).forEach(fase=>{
-
-if(!resultados[fase]) return;
-
-picks[fase].forEach(eq=>{
-
-if(resultados[fase].includes(eq))
-total+=puntosFase[fase];
-
-});
-
-});
-
-return total;
-
-}
-
-
-// ================= LISTA =================
-
-function renderLista(){
-
-const cont=document.getElementById("lista");
-cont.innerHTML="";
-
-Object.keys(participantes).forEach(id=>{
-
-const p=participantes[id];
-
-let picksHTML="";
-
-Object.keys(p.picks||{}).forEach(fase=>{
-
-picksHTML+=`<div><b>${fase}</b>: ${p.picks[fase].join(" • ")}</div>`;
-
-});
-
-const puntos=calcularPuntos(p.picks);
-
-cont.innerHTML+=`
-<div class="participante">
-<b>${p.nombre}</b> — ${puntos} pts
-
-${admin ? `
-<button class="eliminar" onclick="eliminarParticipante('${id}')">
-Eliminar
-</button>
-` : ""}
-
-${picksHTML}
+const contenedor = document.getElementById("questions");
+
+preguntas.forEach((p,i)=>{
+
+contenedor.innerHTML += `
+<div class="question-row">
+    <div class="question-text">${i+1}. ${p}</div>
+    <select id="q${i}">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
 </div>
 `;
-
 });
 
-renderRanking();
+let chart;
+let ultimoResultado;
+
+function calcular(){
+
+let r = [];
+for(let i=0;i<preguntas.length;i++){
+    r.push(parseInt(document.getElementById("q"+i).value));
+}
+
+let resultados = {};
+
+for(let estilo in estilos){
+    let idx = estilos[estilo];
+    resultados[estilo] = r[idx[0]] + r[idx[1]];
+}
+
+const sorted = Object.entries(resultados).sort((a,b)=>b[1]-a[1]);
+const top3 = sorted.slice(0,3);
+
+ultimoResultado = {resultados, top3};
+
+let principal = top3[0][0];
+
+document.getElementById("resultado").style.display="block";
+document.getElementById("resultado").innerHTML = `
+<h2>Estilo Principal: ${principal}</h2>
+
+<p>
+Tu estilo dominante refleja tu forma natural de liderar,
+tomar decisiones y relacionarte con otros en entornos de trabajo.
+</p>
+
+<p><b>Combinación:</b> ${top3[0][0]}, ${top3[1][0]}, ${top3[2][0]}</p>
+`;
+
+document.getElementById("pdfBtn").style.display="block";
+
+crearGrafico(resultados);
 
 }
 
+function crearGrafico(data){
 
-// ================= RANKING =================
+const ctx = document.getElementById('grafico');
 
-function renderRanking(){
+if(chart) chart.destroy();
 
-const cont=document.getElementById("ranking");
-
-let arr=Object.keys(participantes).map(id=>{
-
-const p=participantes[id];
-
-return{
-nombre:p.nombre,
-puntos:calcularPuntos(p.picks)
-};
-
-});
-
-arr.sort((a,b)=>b.puntos-a.puntos);
-
-cont.innerHTML="";
-
-arr.forEach((p,i)=>{
-
-cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
-
+chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+        labels: Object.keys(data),
+        datasets: [{
+            label: 'Nivel',
+            data: Object.values(data),
+            backgroundColor: 'rgba(56,189,248,0.2)',
+            borderColor: '#38bdf8'
+        }]
+    }
 });
 
 }
 
+async function descargarPDF(){
 
-// ================= FIREBASE =================
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
 
-db.ref("config").on("value",snap=>{
-config=snap.val()||{};
-renderPanel();
-});
+let principal = ultimoResultado.top3[0][0];
 
-db.ref("resultados").on("value",snap=>{
-resultados=snap.val()||{};
-renderLista();
-});
+doc.text("Informe Estilos de Liderazgo",10,20);
+doc.text(`Estilo principal: ${principal}`,10,30);
 
-db.ref("participantes").on("value",snap=>{
-participantes=snap.val()||{};
-renderLista();
-cargarSelectNombres();
-});
+const canvas = document.getElementById("grafico");
+const imgData = canvas.toDataURL("image/png",1.0);
+
+doc.addImage(imgData,"PNG",10,40,180,100);
+
+doc.save("liderazgo.pdf");
+
+}
